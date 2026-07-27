@@ -4,6 +4,5 @@
 
 class Tokenizer {
   public:
-    Tokenizer() {};
-    std::vector<std::string> tokenize(std::fstream &);
+    std::vector<std::string> tokenize(std::fstream &) const;
 };

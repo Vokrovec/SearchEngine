@@ -3,7 +3,7 @@
 #include <fstream>
 #include <algorithm>
 
-std::vector<std::string> Tokenizer::tokenize(std::fstream & file) {
+std::vector<std::string> Tokenizer::tokenize(std::fstream & file) const {
   std::vector<std::string> out;
   while(!file.eof()) {
     std::string word;
