@@ -1,8 +1,9 @@
 #pragma once
-#include <string>
+#include <fstream>
 #include <vector>
 
 class Tokenizer {
-  Tokenizer() {};
-  std::vector<std::string> tokenize(std::string &);
+  public:
+    Tokenizer() {};
+    std::vector<std::string> tokenize(std::fstream &);
 };

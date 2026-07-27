@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
-
-
+#include <vector>
+#include "Tokenizer.hpp"
 
 int main (int argc, char *argv[]) {
   if (argc != 2) {
@@ -16,6 +16,10 @@ int main (int argc, char *argv[]) {
     std::cerr << "File cannot be opened!" << std::endl;
     return 1;
   }
-  std::string content;
+  Tokenizer tokenizer;
+  std::vector<std::string> tokens = tokenizer.tokenize(file);
+  for (std::string & s: tokens)
+    std::cout << s << ' ';
+  std::cout << std::endl;
   return 0;
 }
