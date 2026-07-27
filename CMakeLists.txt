@@ -14,19 +14,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-# Main executable
-add_executable(search
-    src/main.cpp
-)
-
-add_library(
+add_library(search_engine
   src/Tokenizer.cpp
-  include/Tokenizer.hpp
+  #include/Tokenizer.hpp
 )
 
 target_include_directories(search_engine
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
+)
+
+# Main executable
+add_executable(search
+    src/main.cpp
 )
 
 target_link_libraries(search
