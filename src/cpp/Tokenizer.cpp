@@ -1,4 +1,3 @@
-#pragma once
 #include "Tokenizer.hpp"
 #include <fstream>
 #include <algorithm>
