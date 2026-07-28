@@ -1,4 +1,5 @@
 .cache
+/urls/*
 /bin
 /build
 compile_commands.json
