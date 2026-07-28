@@ -7,7 +7,23 @@ package main
 #include "search.h"
 */
 import "C"
+import (
+	"fmt"
+	"os"
+	"main/crawler"
+)
 
 func main() {
-	C.hello_world()
+	if len(os.Args) != 2 {
+		fmt.Println("Wrong number of arguments!")
+		return 
+	}
+	switch os.Args[1] {
+	case "hello":
+		C.hello_world()
+	case "crawl":
+		crawler.Crawl("https://en.wikipedia.org/wiki/Alan_Turing")
+	default:
+		fmt.Println("Wrong argument!")
+	}
 }
