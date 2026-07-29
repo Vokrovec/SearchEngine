@@ -1,9 +1,9 @@
 #pragma once
 #include "Token.hpp"
+#include "WordCounter.hpp"
 #include <fstream>
 #include <unordered_set>
 #include <vector>
-//TODO: make getScore method
 
 class Tokenizer {
   public:
@@ -11,7 +11,9 @@ class Tokenizer {
   private:
 
     //privated methods
-    static bool isStopWord(const std::string &);
+    static bool   isStopWord(const std::string &);
+    static double scoreToken(const WordCounterToken &);
+    static bool   transform_word(std::string &); // returns false if the word is stopword
 
     //private variables
     static const std::unordered_set<std::string> STOP_WORDS;
