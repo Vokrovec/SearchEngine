@@ -12,6 +12,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+add_executable(tests
+  tests/test_main.cpp
+)
+
+target_link_libraries(tests PRIVATE search)
+
 add_library(search SHARED
     src/cpp/search.cpp
     src/cpp/Tokenizer.cpp
