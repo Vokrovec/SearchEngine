@@ -146,17 +146,17 @@ func init() {
 	c.OnHTML("h1", func(e *colly.HTMLElement) {
 			doc := e.Request.Ctx.GetAny("document").(*Document)
 			text := strings.Join(strings.Fields(e.Text), " ")
-			doc.H1 += text + ";"
+			doc.H1 += text + " "
 	})
 	c.OnHTML("h2", func(e *colly.HTMLElement) {
 			doc := e.Request.Ctx.GetAny("document").(*Document)
 			text := strings.Join(strings.Fields(e.Text), " ")
-			doc.H2 += text + ";"
+			doc.H2 += text + " "
 	})
 	c.OnHTML("h3", func(e *colly.HTMLElement) {
 			doc := e.Request.Ctx.GetAny("document").(*Document)
 			text := strings.Join(strings.Fields(e.Text), " ")
-			doc.H3 += text + ";"
+			doc.H3 += text + " "
 	})
 	c.OnHTML("html", func(e *colly.HTMLElement) {
 			doc := e.Request.Ctx.GetAny("document").(*Document)
