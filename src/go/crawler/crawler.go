@@ -35,11 +35,16 @@ type Document struct {
 	Index    uint
 	URL      string
 	Title    string
-	Text     string
+	H1 			 string
+	H2 			 string
+	H3 			 string
+	Main     string
+	Body     string
+	Lang		 string
 }
 
 type Documents struct {
-	documents []Document
+	documents []*Document
 	newIndex  uint
 	mu 				sync.Mutex
 }
@@ -47,7 +52,7 @@ type Documents struct {
 
 func newDocuments() *Documents {
 	return &Documents{
-		documents: make([]Document, 0),
+		documents: make([]*Document, 0),
 	}
 }
 
@@ -95,7 +100,7 @@ func (q *URLQueue)empty() bool {
 	return isEmpty
 }
 
-func (d *Documents)add(doc Document) {
+func (d *Documents)add(doc *Document) {
 	d.mu.Lock()
 	d.documents = append(d.documents, doc)
 	d.mu.Unlock()
@@ -128,10 +133,35 @@ func init() {
 	})
 	c.OnHTML("body", func(e *colly.HTMLElement) {
 			doc := e.Request.Ctx.GetAny("document").(*Document)
-			//e.DOM.Find("script, style, nav, footer, header, aside").Remove()
+			e.DOM.Find("script, style, nav, footer, header, aside").Remove()
 			text := strings.Join(strings.Fields(e.Text), " ")
-			doc.Text = text
-			//fmt.Println(text)
+			doc.Body = text
+	})
+	c.OnHTML("main", func(e *colly.HTMLElement) {
+			doc := e.Request.Ctx.GetAny("document").(*Document)
+			e.DOM.Find("script, style, nav, footer, header, aside").Remove()
+			text := strings.Join(strings.Fields(e.Text), " ")
+			doc.Main = text
+	})
+	c.OnHTML("h1", func(e *colly.HTMLElement) {
+			doc := e.Request.Ctx.GetAny("document").(*Document)
+			text := strings.Join(strings.Fields(e.Text), " ")
+			doc.H1 += text + ";"
+	})
+	c.OnHTML("h2", func(e *colly.HTMLElement) {
+			doc := e.Request.Ctx.GetAny("document").(*Document)
+			text := strings.Join(strings.Fields(e.Text), " ")
+			doc.H2 += text + ";"
+	})
+	c.OnHTML("h3", func(e *colly.HTMLElement) {
+			doc := e.Request.Ctx.GetAny("document").(*Document)
+			text := strings.Join(strings.Fields(e.Text), " ")
+			doc.H3 += text + ";"
+	})
+	c.OnHTML("html", func(e *colly.HTMLElement) {
+			doc := e.Request.Ctx.GetAny("document").(*Document)
+			lang := e.Attr("lang")
+			doc.Lang = lang
 	})
 
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
@@ -149,10 +179,10 @@ func init() {
 	})
 	c.OnScraped(func(r *colly.Response) {
 		doc := r.Ctx.GetAny("document").(*Document)
-		if (!isEnglish(doc.Text)) {
+		if (!isEnglish(doc.Main)) {
 			return
 		}
-		documents.add(*doc)
+		documents.add(doc)
 		fmt.Println("Document saved: ", doc.Title)
 	})
 }
@@ -174,9 +204,9 @@ func Crawl(page string) {
 		if len(documents.documents) >= 5 {
 			for i, doc := range documents.documents {
 				fmt.Println("Saving to disc:", i)
-				save_to_disc(&doc)
+				save_to_disc(doc)
 			}
-			documents.documents = make([]Document, 0) 
+			documents.documents = make([]*Document, 0) 
 		}
 	}
 }
@@ -196,6 +226,11 @@ func save_to_disc(doc *Document) error {
 	defer file.Close()
 	fmt.Fprintf(file, "Title: %s\n", doc.Title)
 	fmt.Fprintf(file, "URL: %s\n", doc.URL)
-	fmt.Fprintf(file, "Text: %s\n", doc.Text)
+	fmt.Fprintf(file, "Main: %s\n", doc.Main)
+	fmt.Fprintf(file, "Body: %s\n", doc.Body)
+	fmt.Fprintf(file, "Lang: %s\n", doc.Lang)
+	fmt.Fprintf(file, "H1: %s\n", doc.H1)
+	fmt.Fprintf(file, "H2: %s\n", doc.H2)
+	fmt.Fprintf(file, "H3: %s\n", doc.H3)
 	return err
 }
