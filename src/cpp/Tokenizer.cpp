@@ -1,7 +1,9 @@
 #include "Tokenizer.hpp"
+#include "Token.hpp"
 #include <fstream>
 #include <algorithm>
 #include <unordered_set>
+#include <map>
 
 
 const std::unordered_set<std::string> Tokenizer::STOP_WORDS = {
@@ -54,21 +56,38 @@ bool Tokenizer::isStopWord(const std::string & str) {
   return STOP_WORDS.contains(str);
 }
 
-std::vector<std::string> Tokenizer::tokenize(std::fstream & file) const {
-    std::vector<std::string> out;
+std::vector<Token> Tokenizer::tokenize(std::fstream & file) const {
+    std::vector<Token> output;
+    std::map<std::string, size_t> wordCounter;
     while(!file.eof()) {
         std::string word;
         file >> word;
+
+        //remove non alphanumeric characters
         erase_if(word, [](unsigned char c){
             if (std::isalnum(static_cast<unsigned char>(c))) 
                 return false;
             return true;
         });
+
+        //transform to lowercase
         std::transform(word.begin(), word.end(), word.begin(), [](unsigned char c) {
             return std::tolower(c);
         });
+
+        //if it's not stopword add it into output
         if (!isStopWord(word))
-            out.push_back(word);
+            wordCounter[word]++;
     }
-    return out;
+    //insert into output vector
+    for (auto & w: wordCounter) {
+        std::string word = w.first;
+        size_t cnt = w.second;
+        output.push_back(Token(word, cnt));
+    }
+    //sort by how many times occured
+    std::sort(output.begin(), output.end(), [](const Token & t1, const Token & t2) {
+        return t1.getCount() < t2.getCount();
+    });
+    return output;
 }
