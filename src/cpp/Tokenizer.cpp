@@ -99,8 +99,8 @@ std::vector<Token> Tokenizer::tokenize(std::ifstream & file) const {
         std::stringstream stream(line);
         std::string secStr;
         stream >> secStr;
-        secStr.pop_back();
         if (secStr.empty()) continue;
+        secStr.pop_back();
         Section section = getSection(secStr);
 
         //std::cout << "Parsing section:" << secStr << std::endl; //Only for debuging
