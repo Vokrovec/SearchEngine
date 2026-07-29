@@ -1,3 +1,11 @@
 #include "Token.hpp"
+#include "SectionsEnum.hpp"
 
-Token::Token(const std::string & word, size_t count) : m_Word(word), m_Count(count) {}
+Token::Token(const std::string & word, double score) : m_Word(word), m_Score(score) {}
+
+double Token::getScore() const {
+    return m_Score;
+}
+const std::string & Token::getWord() const {
+    return m_Word;
+}

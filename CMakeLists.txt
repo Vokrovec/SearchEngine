@@ -21,6 +21,9 @@ target_link_libraries(tests PRIVATE search)
 add_library(search SHARED
     src/cpp/search.cpp
     src/cpp/Tokenizer.cpp
+    src/cpp/Token.cpp
+    src/cpp/WordCounter.cpp
+    src/cpp/SectionsEnum.cpp
 )
 
 target_include_directories(search

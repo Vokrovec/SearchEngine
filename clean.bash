@@ -9,8 +9,9 @@ BUILD_DIR="$ROOT/build"
 #GO_DIR="$ROOT/src/go"
 OUTPUT_DIR="$ROOT/bin"
 URLS_DIR="$ROOT/urls"
+TOKENIZED_DIR="$ROOT/tokenized"
 
 cd ./src/go
   go clean -cache
 cd -
-rm -rf "$URLS_DIR" "$BUILD_DIR" "$OUTPUT_DIR"
+rm -rf "$URLS_DIR" "$BUILD_DIR" "$OUTPUT_DIR" "$TOKENIZED_DIR"

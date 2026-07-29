@@ -2,6 +2,8 @@
 #include "SectionsEnum.hpp"
 #include "Token.hpp"
 #include "WordCounter.hpp"
+#include <cassert>
+#include <cctype>
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -55,8 +57,12 @@ const std::unordered_set<std::string> Tokenizer::STOP_WORDS = {
     "you", "your", "yours", "yourself", "yourselves"
 };
 
-double Tokenizer::scoreToken(const WordCounterToken & token) {
-  return 1;// TODO: make this propper method
+double Tokenizer::scoreToken(const WordCounterToken & token, size_t wordsInDocument) {
+    double score = 0.;
+    for (Section s: Sections) {
+        score += static_cast<double>(token.getSectionCount(s)) * sectionWeight(s);
+    }
+    return (score) / static_cast<double>(wordsInDocument);
 }
 
 bool Tokenizer::isStopWord(const std::string & str) {
@@ -76,42 +82,59 @@ bool Tokenizer::transform_word(std::string & word) {
           return std::tolower(c);
       });
 
+      if (word=="") return false;
       //if it's not stopword add it into output
-      if (!isStopWord(word))
+      if (isStopWord(word))
           return false;
+      return true;
 }
 
-std::vector<Token> Tokenizer::tokenize(std::fstream & file) const {
+std::vector<Token> Tokenizer::tokenize(std::ifstream & file) const {
     std::vector<Token> output;
     std::unordered_map<std::string, WordCounterToken> wordCounter;
     std::string line;
+    size_t numberOfWords = 0;
+
     while(std::getline(file, line)) {
         std::stringstream stream(line);
         std::string secStr;
         stream >> secStr;
         secStr.pop_back();
-        Section section;
-        std::cout << "Parsing section: " << secStr << std::endl;
-        if (secStr == "Title") 
-          section = Section::Title;
-        else if (secStr == "Main")
-          section = Section::Main;
-        else if (secStr == "Body")
-          section = Section::Body;
-        else if (secStr == "H1")
-          section = Section::H1;
-        else if (secStr == "H2")
-          section = Section::H2;
-        else if (secStr == "H3")
-          section = Section::H3;
+        if (secStr.empty()) continue;
+        Section section = getSection(secStr);
+
+        //std::cout << "Parsing section:" << secStr << std::endl; //Only for debuging
+        //skip parsing URLS, Language and undefined tags
+        if (section == Section::URL  || 
+            section == Section::Lang ||
+            section == Section::Wrong) continue;
+
+        while (!stream.eof()) {
+            std::string word;
+            stream >> word;
+            //std::cout << "Word: "<< word << std::endl; //Only for debuging
+            if (!transform_word(word)) continue;
+            numberOfWords++;
+            if (wordCounter.contains(word)) {
+                WordCounterToken token = wordCounter.at(word);
+                token.incSection(section);
+            } else {
+                WordCounterToken token;
+                token.incSection(section);
+                wordCounter[word] = token;
+            }
+        }
     }
+
     //insert into output vector
     for (auto &[w, tok]: wordCounter) {
-        output.push_back(Token(w, scoreToken(tok)));
+        output.push_back(Token(w, scoreToken(tok, numberOfWords)));
     }
+
     //sort by how many times occured
     std::sort(output.begin(), output.end(), [](const Token & t1, const Token & t2) {
-        return t1.getScore() < t2.getScore();
+        return t1.getScore() > t2.getScore();
     });
+
     return output;
 }

@@ -4,9 +4,8 @@
 struct Token {
     public:
       Token(const std::string &, double);
-      [[nodiscard]] size_t getScore() const {
-        return m_Score;
-      }
+      [[nodiscard]] double getScore() const;
+      [[nodiscard]] const std::string & getWord() const;
     private:
       std::string m_Word;
       double m_Score;

@@ -9,6 +9,7 @@ BUILD_DIR="$ROOT/build"
 GO_DIR="$ROOT/src/go"
 OUTPUT_DIR="$ROOT/bin"
 URLS_DIR="$ROOT/urls"
+TOKENIZED_DIR="$ROOT/tokenized"
 
 # Default build type
 BUILD_TYPE="Release"
@@ -61,5 +62,9 @@ go build -ldflags '-linkmode external -extldflags "-Wl,-rpath,$ORIGIN"' \
 echo "==> Making $URLS_DIR directory"
 
 mkdir -p "$URLS_DIR"
+
+echo "==> Making $TOKENIZED_DIR directory"
+
+mkdir -p "$TOKENIZED_DIR"
 
 echo "==> Done"

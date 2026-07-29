@@ -26,9 +26,11 @@ func main() {
 	case "crawl":
 		crawler.Crawl("https://en.wikipedia.org/wiki/Alan_Turing")
 	case "tokenize":
-		folderName := C.CString("./urls")
-		defer C.free(unsafe.Pointer(folderName))
-		C.tokenize_folder(folderName)
+		inputFolderName := C.CString("./urls")
+		outputFolderName := C.CString("./tokenized")
+		defer C.free(unsafe.Pointer(inputFolderName))
+		defer C.free(unsafe.Pointer(outputFolderName))
+		C.tokenize_folder(inputFolderName, outputFolderName)
 	default:
 		fmt.Println("Wrong argument!")
 	}

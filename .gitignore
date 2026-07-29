@@ -1,5 +1,6 @@
 .cache
 /urls/*
+/tokenized/*
 /bin
 /build
 compile_commands.json
