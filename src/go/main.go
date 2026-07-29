@@ -5,12 +5,14 @@ package main
 #cgo LDFLAGS: -L../../build -lsearch -lstdc++
 
 #include "search.h"
+#include <stdlib.h> 
 */
 import "C"
 import (
 	"fmt"
 	"os"
 	"main/crawler"
+	"unsafe"
 )
 
 func main() {
@@ -23,6 +25,10 @@ func main() {
 		C.hello_world()
 	case "crawl":
 		crawler.Crawl("https://en.wikipedia.org/wiki/Alan_Turing")
+	case "tokenize":
+		folderName := C.CString("./urls")
+		defer C.free(unsafe.Pointer(folderName))
+		C.tokenize_folder(folderName)
 	default:
 		fmt.Println("Wrong argument!")
 	}
