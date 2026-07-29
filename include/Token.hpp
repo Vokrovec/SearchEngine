@@ -4,7 +4,7 @@
 struct Token {
     public:
       Token(const std::string &, double);
-      size_t getScore() const {
+      [[nodiscard]] size_t getScore() const {
         return m_Score;
       }
     private:

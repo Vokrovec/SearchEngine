@@ -7,13 +7,13 @@
 
 class Tokenizer {
   public:
-    std::vector<Token> tokenize(std::fstream &) const;
+    [[nodiscard]] std::vector<Token> tokenize(std::fstream &) const;
   private:
 
     //privated methods
-    static bool   isStopWord(const std::string &);
-    static double scoreToken(const WordCounterToken &);
-    static bool   transform_word(std::string &); // returns false if the word is stopword
+    [[nodiscard]] static bool   isStopWord(const std::string &);
+    [[nodiscard]] static double scoreToken(const WordCounterToken &);
+    [[nodiscard]] static bool   transform_word(std::string &); // returns false if the word is stopword
 
     //private variables
     static const std::unordered_set<std::string> STOP_WORDS;
