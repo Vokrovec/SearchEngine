@@ -9,30 +9,46 @@ project(SearchEngine
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_executable(tests
-  tests/test_main.cpp
+function(add_component NAME)
+    file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/${NAME}/*.cpp"
+    )
+    file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/${NAME}/*.hpp"
+    )
+
+    add_library(${NAME} 
+      ${SOURCES}
+      ${HEADERS}
+    )
+
+    target_include_directories(${NAME}
+        PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    )
+endfunction()
+
+add_component(common)
+#add_component(crawler)
+add_component(indexer)
+#add_component(server)
+
+target_link_libraries(indexer
+    PUBLIC common
 )
 
-target_link_libraries(tests PRIVATE search)
+#add_executable(crawler_app apps/crawler_main.cpp)
+#target_link_libraries(crawler_app PRIVATE crawler)
 
-add_library(search SHARED
-    src/cpp/search.cpp
-    src/cpp/Tokenizer.cpp
-    src/cpp/Token.cpp
-    src/cpp/WordCounter.cpp
-    src/cpp/SectionsEnum.cpp
-)
+add_executable(indexer_app apps/indexer_main.cpp)
+target_link_libraries(indexer_app PRIVATE indexer)
 
-target_include_directories(search
-    PUBLIC
-        ${PROJECT_SOURCE_DIR}/include
-)
+#add_executable(search_server apps/server_main.cpp)
+#target_link_libraries(search_server PRIVATE server)
 
 # Compiler warnings
-target_compile_options(search PRIVATE
+target_compile_options(indexer_app PRIVATE
     -Wall
     -Wextra
     -Wpedantic
@@ -42,7 +58,7 @@ target_compile_options(search PRIVATE
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(STATUS "Debug build")
 
-    target_compile_options(search PRIVATE
+    target_compile_options(indexer_app PRIVATE
         -g
         -O0
     )
@@ -50,7 +66,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     message(STATUS "Release build")
 
-    target_compile_options(search PRIVATE
+    target_compile_options(indexer_app PRIVATE
         -O3
         -DNDEBUG
     )
@@ -58,3 +74,4 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
 else()
     message(WARNING "Unknown build type: ${CMAKE_BUILD_TYPE}")
 endif()
+

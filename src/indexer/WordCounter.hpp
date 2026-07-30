@@ -1,5 +1,5 @@
 #pragma once
-#include "SectionsEnum.hpp"
+#include "common/SectionsEnum.hpp"
 #include <array>
 
 class WordCounterToken{

@@ -1,5 +1,5 @@
-#include "WordCounter.hpp"
-#include "SectionsEnum.hpp"
+#include "indexer/WordCounter.hpp"
+#include "common/SectionsEnum.hpp"
 
 void WordCounterToken::incSection(Section section) {
   (*this).m_OccuredInSections[static_cast<size_t>(section)]++;

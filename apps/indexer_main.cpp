@@ -1,15 +1,11 @@
-#include "search.h"
-#include "Tokenizer.hpp"
-#include "Token.hpp"
+#include "indexer/Tokenizer.hpp"
+#include "common/Token.hpp"
+#include <string>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <filesystem>
 
-void hello_world() {
-    std::cout << "Hello world" << std::endl;
-}
-
-void tokenize_folder(const char* inputFolderName, const char* outputFolderName) { // must be a const char in argumnet, bcs golang accept only C interface
+void tokenize_folder(const std::string & inputFolderName, const std::string & outputFolderName) { // must be a const char in argumnet, bcs golang accept only C interface
     std::filesystem::path folder = inputFolderName;
     Tokenizer T;
     for (const auto& entry: std::filesystem::directory_iterator(folder)) {
@@ -41,4 +37,8 @@ void tokenize_folder(const char* inputFolderName, const char* outputFolderName) 
         }
     }
     std::cout.flush();
+}
+
+int main() {
+    tokenize_folder("./urls", "./tokenized");
 }

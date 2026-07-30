@@ -1,6 +1,6 @@
 #pragma once
-#include "Token.hpp"
-#include "WordCounter.hpp"
+#include "common/Token.hpp"
+#include "indexer/WordCounter.hpp"
 #include <fstream>
 #include <unordered_set>
 #include <vector>

@@ -1,7 +1,7 @@
-#include "Tokenizer.hpp"
-#include "SectionsEnum.hpp"
-#include "Token.hpp"
-#include "WordCounter.hpp"
+#include "indexer/Tokenizer.hpp"
+#include "common/SectionsEnum.hpp"
+#include "common/Token.hpp"
+#include "indexer/WordCounter.hpp"
 #include <cassert>
 #include <cctype>
 #include <iostream>
