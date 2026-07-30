@@ -40,7 +40,7 @@ std::optional<bool> RobotsParser::getFromCache(const std::string & path) noexcep
 }
 
 bool RobotsParser::IsPathAllowed(const std::string& path) {
-    if (m_RobotsTxt == "")
+    if (m_RobotsTxt == "") // IDK if I want it like this or just to return true
           throw std::runtime_error("There is no m_RobotsTxt text!");
 
     //if cached return that
