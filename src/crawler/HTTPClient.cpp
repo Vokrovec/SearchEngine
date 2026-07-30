@@ -35,10 +35,14 @@ HTTPClient::HTTPClient() {
 }
 
 HTTPClient::~HTTPClient() noexcept {
+    if (!m_Curl)
+        return;
     curl_easy_cleanup(m_Curl);
 }
 
 void HTTPClient::SetUserAgent(const std::string & agent) const {
+    if (!m_Curl)
+        throw std::logic_error("HTTPClient was not initialized!");
     curl_easy_setopt(m_Curl, CURLOPT_USERAGENT, agent.c_str());
 }
 
