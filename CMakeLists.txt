@@ -93,7 +93,16 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(indexer_app PRIVATE
         -g
         -O0
-        -DTEST
+    )
+    target_compile_definitions(indexer_app PRIVATE
+        TEST
+    )
+    target_compile_options(crawler_app PRIVATE
+        -g
+        -O0
+    )
+    target_compile_definitions(crawler_app PRIVATE
+        TEST
     )
 
     add_executable(run_tests tests/test_main.cpp)
