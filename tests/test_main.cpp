@@ -1,5 +1,13 @@
+#include "RobotsParserTest.cpp"
+
+#include <cassert>
 #include <iostream>
+
+
 int main (int argc, char *argv[]) {
-  std::cout << "This is a testing program!" << std::endl;
+  std::cout << "Testing Program:" << std::endl;
+
+  RobotsParserTest::Run();
+
   return 0;
 }

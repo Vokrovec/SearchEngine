@@ -25,6 +25,7 @@ FetchContent_Declare(
 
 set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(curl)
 
@@ -51,7 +52,7 @@ function(add_component NAME)
 endfunction()
 
 add_component(common)
-#add_component(crawler)
+add_component(crawler)
 add_component(indexer)
 #add_component(server)
 
@@ -59,16 +60,21 @@ target_link_libraries(indexer
     PUBLIC common
 )
 
+target_link_libraries(crawler
+    PUBLIC curl
+)
+
 
 # ----------------------------------------
 # Executables
 # ----------------------------------------
 
-#add_executable(crawler_app apps/crawler_main.cpp)
-#target_link_libraries(crawler_app PRIVATE crawler)
+add_executable(crawler_app apps/crawler_main.cpp)
+target_link_libraries(crawler_app PRIVATE crawler)
 
 add_executable(indexer_app apps/indexer_main.cpp)
 target_link_libraries(indexer_app PRIVATE indexer)
+
 
 #add_executable(search_server apps/server_main.cpp)
 #target_link_libraries(search_server PRIVATE server)
@@ -87,7 +93,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_options(indexer_app PRIVATE
         -g
         -O0
+        -DTEST
     )
+
+    add_executable(run_tests tests/test_main.cpp)
+    target_link_libraries(run_tests PRIVATE indexer crawler)
 
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     message(STATUS "Release build")
