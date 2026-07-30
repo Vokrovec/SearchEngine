@@ -8,12 +8,15 @@ class RobotsParser {
     class Rule {
         public:
             Rule(const std::string&, bool);
-            Rule(const Rule &) = default;
-            ~Rule() = default;
+            Rule& operator=(const Rule &)   = default;
+            Rule(const Rule &)              = default;
+            ~Rule()                         = default;
+
             //for the set
-            bool operator<(const Rule & r) const;
-            const std::string & getPath() const;
-            bool getAllow() const;
+            [[nodiscard]] bool operator<(const Rule & r) const;
+
+            [[nodiscard]] const std::string & getPath() const;
+            [[nodiscard]] bool getAllow() const;
         private:
             std::string m_Path;
             bool m_IsAllow; // true = Allow, false = Disallow
@@ -29,8 +32,8 @@ class RobotsParser {
     [[nodiscard]] static bool IsPathAllowed(const std::string& robotsTxtContent, 
                                             const std::string& userAgent, 
                                             const std::string& path);
-    private:
-    std::set<Rule> m_Cache;
+  private:
+  std::set<Rule> m_Cache;
 
   #ifdef TEST
     friend class RobotsParserTest;
