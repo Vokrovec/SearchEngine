@@ -11,6 +11,27 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# ---------------------------------------
+# Dependencies 
+# ---------------------------------------
+
+include(FetchContent)
+
+FetchContent_Declare(
+    curl
+    GIT_REPOSITORY https://github.com/curl/curl.git
+    GIT_TAG curl-8_20_0
+)
+
+set(BUILD_CURL_EXE OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(curl)
+
+## --------------------------------------------------
+# Components
+# --------------------------------------------------
+
 function(add_component NAME)
     file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/src/${NAME}/*.cpp"
@@ -37,6 +58,11 @@ add_component(indexer)
 target_link_libraries(indexer
     PUBLIC common
 )
+
+
+# ----------------------------------------
+# Executables
+# ----------------------------------------
 
 #add_executable(crawler_app apps/crawler_main.cpp)
 #target_link_libraries(crawler_app PRIVATE crawler)
