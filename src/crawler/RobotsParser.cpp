@@ -1,21 +1,15 @@
 #include "crawler/RobotsParser.hpp"
 #include <algorithm>
+#include <optional>
+#include <stdexcept>
 #include <vector>
 #include <string>
 #include <sstream>
+#include <iostream>
 
-RobotsParser::Rule::Rule(const std::string & path, bool isAllowed) : m_Path(path), m_IsAllow(isAllowed) {}
-
-bool RobotsParser::Rule::operator<(const RobotsParser::Rule & r) const {
-    return m_Path < r.m_Path;
-}
-
-const std::string & RobotsParser::Rule::getPath() const {
-    return m_Path;
-}
-bool RobotsParser::Rule::getAllow() const {
-    return m_IsAllow;
-}
+RobotsParser::RobotsParser(const std::string& robotsTxt, 
+                           const std::string& userAgent)
+                           : m_RobotsTxt(robotsTxt), m_UserAgent(userAgent) {}
 
 std::string RobotsParser::CleanLine(const std::string& line) {
     std::string cleaned = line;
@@ -37,11 +31,25 @@ std::string RobotsParser::ToLower(std::string str) {
     return std::move(str);
 }
 
-bool RobotsParser::IsPathAllowed(const std::string& robotsTxtContent, 
-                          const std::string& userAgent, 
-                          const std::string& path)
-{
-    std::stringstream ss(robotsTxtContent);
+std::optional<bool> RobotsParser::getFromCache(const std::string & path) noexcept {
+    //load from cache, if it's there
+    auto it = m_Cache.find(path);
+    if (it == m_Cache.end())
+      return std::optional<bool>();
+    return std::optional<bool>((*it).second);
+}
+
+bool RobotsParser::IsPathAllowed(const std::string& path) {
+    if (m_RobotsTxt == "")
+          throw std::runtime_error("There is no m_RobotsTxt text!");
+
+    //if cached return that
+    auto cached = getFromCache(path);
+    if (cached.has_value()) {
+      return cached.value();
+    }
+
+    std::stringstream ss(m_RobotsTxt);
     std::string line;
 
     std::vector<Rule> specificUserAgentRules;
@@ -50,7 +58,7 @@ bool RobotsParser::IsPathAllowed(const std::string& robotsTxtContent,
     bool inSpecificAgentBlock = false;
     bool inWildcardBlock = false;
 
-    std::string targetAgent = ToLower(userAgent);
+    std::string targetAgent = ToLower(m_UserAgent);
 
     while (std::getline(ss, line)) {
         std::string cleaned = CleanLine(line);
@@ -93,13 +101,14 @@ bool RobotsParser::IsPathAllowed(const std::string& robotsTxtContent,
 
     for (const auto& rule : activeRules) {
         // Check if the requested path starts with the rule's path prefix
-        if (path.rfind(rule.getPath(), 0) == 0) { 
-            if (rule.getPath().length() >= longestMatchLength) {
-                longestMatchLength = rule.getPath().length();
-                allowed = rule.getAllow();
-            }
-        }
+        m_Cache[rule.path] = rule.isAllow;
+        if (path.rfind(rule.path, 0) != 0) continue;
+        if (rule.path.length() < longestMatchLength) continue;
+
+        longestMatchLength = rule.path.length();
+        allowed = rule.isAllow;
     }
+    m_Cache[path] = allowed;
 
     return allowed;
 }

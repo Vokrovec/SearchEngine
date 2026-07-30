@@ -1,25 +1,14 @@
 #pragma once
 //#include <iostream>
-#include <set>
+#include <map>
+#include <optional>
 #include <string>
 
 class RobotsParser {
   private:
-    class Rule {
-        public:
-            Rule(const std::string&, bool);
-            Rule& operator=(const Rule &)   = default;
-            Rule(const Rule &)              = default;
-            ~Rule()                         = default;
-
-            //for the set
-            [[nodiscard]] bool operator<(const Rule & r) const;
-
-            [[nodiscard]] const std::string & getPath() const;
-            [[nodiscard]] bool getAllow() const;
-        private:
-            std::string m_Path;
-            bool m_IsAllow; // true = Allow, false = Disallow
+    struct Rule {
+        std::string path;
+        bool isAllow; // true = Allow, false = Disallow
     };
 
     // Trim whitespace and remove comments starting with '#'
@@ -29,13 +18,18 @@ class RobotsParser {
     [[nodiscard]] static std::string ToLower(std::string str);
 
   public:
-    [[nodiscard]] static bool IsPathAllowed(const std::string& robotsTxtContent, 
-                                            const std::string& userAgent, 
-                                            const std::string& path);
-  private:
-  std::set<Rule> m_Cache;
+    RobotsParser(const std::string&, const std::string&);
+    RobotsParser(const RobotsParser&)                     = delete;
+    RobotsParser operator=(const RobotsParser&)           = delete;
+    ~RobotsParser()                                       = default;
+    [[nodiscard]] bool IsPathAllowed(const std::string&);
 
-  #ifdef TEST
+  private:
+    [[nodiscard]] std::optional<bool> getFromCache(const std::string&) noexcept;
+    std::map<std::string, bool> m_Cache = {};
+    std::string m_RobotsTxt;
+    std::string m_UserAgent;
+
+    //just for testing
     friend class RobotsParserTest;
-  #endif //TEST
 };
