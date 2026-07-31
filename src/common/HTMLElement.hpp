@@ -19,9 +19,8 @@ class Element {
     [[nodiscard]] const std::string& getText() const;
     [[nodiscard]] const std::string& getName() const;
     [[nodiscard]] std::vector<Attribute> getAttributes() const;
-
-  private:
     [[nodiscard]] static std::string getTagName(const std::string&);
+  private:
     void printAttributes();
     std::string m_Name;
     std::string m_Text = "";

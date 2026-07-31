@@ -106,7 +106,11 @@ target_link_libraries(indexer_app PRIVATE indexer common)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   message(STATUS "Debug build")
     add_app(run_tests "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_main.cpp")
+    target_compile_options(indexer_app PRIVATE
+      -Wno-unused-variable
+    )
     target_link_libraries(run_tests PRIVATE crawler indexer common)
+
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     message(STATUS "Release build")
 else()

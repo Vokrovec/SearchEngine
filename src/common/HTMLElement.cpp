@@ -6,9 +6,9 @@
 
 std::string Element::getTagName(const std::string& tag) {
     if (tag.empty())
-        throw std::runtime_error("Invalid (empty) Tag");
+        throw std::runtime_error("Invalid (empty) Tag!");
     if (tag[0] != '<')
-        throw std::runtime_error("Invalid Tag");
+        throw std::runtime_error("Invalid Tag no < of position 0!");
     std::string name = "";
     size_t idx = 1;
     while (idx < tag.size()) {
@@ -44,10 +44,7 @@ Element::Element(const std::string& tag) {
         }
         if (std::isspace(tag[idx])){
             if (!attrName.empty() && lastChar!='=') {
-                addAttribute({
-                    .Name = attrName,
-                    .Value = ""
-                    });
+                addAttribute({.Name = attrName, .Value = ""});
                 attrName = "";
             }
             idx++;
@@ -81,15 +78,23 @@ Element::Element(const std::string& tag) {
 
 
         if (tag[idx] == '>') {
+          if (m_Name == "!DOCTYPE" && attrName == "html") {
+            addAttribute({
+                .Name = attrName,
+                .Value = ""
+                });
+            break;
+          }
           if (attrName.empty())
               break;
-          throw std::runtime_error("Invalid Tag!");
+              
+          throw std::runtime_error("Invalid Tag no closing '>': " + attrName);
         }
         lastChar = tag[idx];
         idx++;
     }
     if (idx+1 != tag.size())
-          throw std::runtime_error("Invalid Tag!");
+          throw std::runtime_error("Invalid Tag invalid size!");
 }
 
 void Element::printAttributes() {
@@ -111,7 +116,7 @@ const std::string& Element::getText() const {
 }
 
 const std::string& Element::getName() const {
-    return m_Text;
+    return m_Name;
 }
 
 std::vector<Element::Attribute> Element::getAttributes() const {
