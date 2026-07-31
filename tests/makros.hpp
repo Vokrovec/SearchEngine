@@ -2,7 +2,7 @@
                                                 \
 bool isThrown = false;                          \
 try {                                           \
-    expr;                                       \
+    auto _ = expr;                              \
 } catch(const exceptionType &) {                \
     isThrown = true;                            \
 }                                               \
