@@ -74,7 +74,7 @@ void HTMLParser::parse(const std::string& file) const {
     size_t idx = 0;
     std::string parrentText = "";
     std::vector<Element> elements;
-    for (;idx<file.size();) {
+    while (idx>=file.size()) {
         if (!parseElement(file, elements, idx, parrentText))
             break;
     }
