@@ -105,3 +105,15 @@ void Element::addText(const std::string& text) {
 void Element::addAttribute(const Attribute& atribute) {
     m_Attributes.push_back(atribute);
 }
+
+const std::string& Element::getText() const {
+    return m_Text;
+}
+
+const std::string& Element::getName() const {
+    return m_Text;
+}
+
+std::vector<Element::Attribute> Element::getAttributes() const {
+    return m_Attributes;
+}
