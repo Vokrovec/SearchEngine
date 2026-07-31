@@ -64,6 +64,11 @@ function(add_app NAME PATH)
         target_compile_options(${NAME} PRIVATE
             -g
             -O0
+            -fsanitize=address
+        )
+
+        target_link_options(${NAME} PRIVATE
+            -fsanitize=address
         )
         target_compile_definitions(${NAME} PRIVATE
             TEST

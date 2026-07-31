@@ -9,7 +9,7 @@ std::string Element::getAttribute(const std::string& attr) const {
         if (a.Name == attr)
             return a.Value;
     }
-    throw std::runtime_error("No attribe \"" + attr + "\"" + " inside " + m_Name);
+    return "";
 }
 
 std::string Element::getTagName(const std::string& tag) {
@@ -44,7 +44,7 @@ Element::Element(const std::string& tag) {
     std::string attrName = "";
     while (true) {
         if (idx >= tag.size())
-            throw std::runtime_error("Invalid Tag: didn't find closing >");
+            throw std::runtime_error("Invalid Tag: didn't find closing '>': " + tag);
         if (std::isalnum(tag[idx]) || tag[idx] == '-' || tag[idx] == '_') {
             attrName += tag[idx];
             idx++;
@@ -60,19 +60,28 @@ Element::Element(const std::string& tag) {
         }
 
         if (lastChar == '=') {
+            bool isQuoted = false;
             while(true) {
                 if (idx >= tag.size())
-                    throw std::runtime_error("Invalid Tag: Didn't find closing \" inside of arrtibute");
-                if (tag[idx] == '"') break;
-                idx++;
+                    throw std::runtime_error("Invalid Tag: Didn't find opening \" inside of arttibute: " + tag);
+                if (tag[idx] == '"') {
+                  isQuoted = true;
+                  idx++;
+                  break;
+                }
+                if (!std::isspace(tag[idx])) {
+                    break;
+                }
             }
             lastChar = '\0';
-            idx++;
             std::string attrValue = "";
             while(true) {
                 if (idx >= tag.size())
-                    throw std::runtime_error("Invalid Tag: Didn't find closing \" inside of arrtibute");
-                if (tag[idx] == '"') break;
+                    throw std::runtime_error("Invalid Tag: Didn't find closing \" inside of arttibute: " + tag);
+                if (isQuoted && tag[idx] == '"') break;
+                if (std::isspace(tag[idx]) || tag[idx] == '>') {
+                    break;
+                }
                 attrValue += tag[idx];
                 idx++;
             }
@@ -86,17 +95,13 @@ Element::Element(const std::string& tag) {
 
 
         if (tag[idx] == '>') {
-          if (m_Name == "!DOCTYPE" && attrName == "html") {
-            addAttribute({
-                .Name = attrName,
-                .Value = ""
-                });
-            break;
-          }
           if (attrName.empty())
               break;
-              
-          throw std::runtime_error("Invalid Tag no closing '>': " + attrName);
+          addAttribute({
+              .Name = attrName,
+              .Value = ""
+              });
+          break;
         }
         lastChar = tag[idx];
         idx++;

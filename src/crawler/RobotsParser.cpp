@@ -5,7 +5,6 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include <iostream>
 
 RobotsParser::RobotsParser(const std::string& robotsTxt, 
                            const std::string& userAgent)

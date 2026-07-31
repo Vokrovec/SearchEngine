@@ -19,8 +19,10 @@ class RobotsParser {
 
   public:
     RobotsParser(const std::string&, const std::string&);
-    RobotsParser(const RobotsParser&)                     = delete;
-    RobotsParser operator=(const RobotsParser&)           = delete;
+    RobotsParser(RobotsParser&&)                noexcept = delete;
+    RobotsParser&  operator=(RobotsParser&&)    noexcept = delete;
+    RobotsParser(const RobotsParser&)                     = default;
+    RobotsParser&  operator=(const RobotsParser&)         = default;
     ~RobotsParser()                                       = default;
     [[nodiscard]] bool IsPathAllowed(const std::string&);
 

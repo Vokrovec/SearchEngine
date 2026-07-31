@@ -1,7 +1,6 @@
 #include "common/HTMLParser.hpp"
 #include "common/HTMLElement.hpp"
 #include <cstddef>
-#include <stdexcept>
 #include <string>
 #include <vector>
 #include <unordered_set>
@@ -9,7 +8,8 @@
 const std::unordered_set<std::string> HTMLParser::voidTags = {
     "area", "base", "br", "col", "embed",
     "hr", "img", "input", "link", "meta",
-    "source", "track", "wbr", "!DOCTYPE"
+    "source", "track", "wbr", "!DOCTYPE", 
+    "footer", "svg", "path", "li"
 };
 
 bool HTMLParser::parseElement(const std::string& file, std::vector<Element>& elements, size_t & idx, std::string& parrentText) {
@@ -65,9 +65,12 @@ bool HTMLParser::parseElement(const std::string& file, std::vector<Element>& ele
             if (isElement) continue;
         }
 
+        if (idx >= file.size())
+            return false;
         text += file[idx];
     }
-    throw std::runtime_error("Not a valid tag: " + tag + ";" + text);
+    return false;
+    //throw std::runtime_error("Not a valid tag: " + tag + ":" + text);
 }
 
 void HTMLParser::parse(const std::string& file) const {
