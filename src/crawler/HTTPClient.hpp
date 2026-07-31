@@ -6,7 +6,7 @@ class HTTPClient {
     public:
       HTTPClient();
       HTTPClient(HTTPClient &) = delete;
-      void Visit(const std::string &) const;
+      [[nodiscard]] std::string Visit(const std::string &) const;
       void SetUserAgent(const std::string &) const;
       void HandleRobots() const;
       ~HTTPClient() noexcept;

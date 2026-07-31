@@ -4,6 +4,14 @@
 #include <iostream>
 #include <utility>
 
+std::string Element::getAttribute(const std::string& attr) const {
+    for (const auto& a: m_Attributes) {
+        if (a.Name == attr)
+            return a.Value;
+    }
+    throw std::runtime_error("No attribe \"" + attr + "\"" + " inside " + m_Name);
+}
+
 std::string Element::getTagName(const std::string& tag) {
     if (tag.empty())
         throw std::runtime_error("Invalid (empty) Tag!");

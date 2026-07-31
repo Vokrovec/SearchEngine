@@ -19,6 +19,7 @@ class Element {
     [[nodiscard]] const std::string& getText() const;
     [[nodiscard]] const std::string& getName() const;
     [[nodiscard]] std::vector<Attribute> getAttributes() const;
+    [[nodiscard]] std::string getAttribute(const std::string&) const;
     [[nodiscard]] static std::string getTagName(const std::string&);
   private:
     void printAttributes();
