@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
-#include <iostream>
 
 const std::unordered_set<std::string> HTMLParser::voidTags = {
     "area", "base", "br", "col", "embed",
