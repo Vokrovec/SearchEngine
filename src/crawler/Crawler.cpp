@@ -24,7 +24,7 @@ std::string Crawler::getProperURL(const std::string& inputURL) {
         //let's not care about relative urls for now!
         return "";
     }
-    std::cerr << "Unknown format of URL: " << inputURL << std::endl;
+    //std::cerr << "Unknown format of URL: " << inputURL << std::endl;
     return "";
 }
 
