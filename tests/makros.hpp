@@ -1,8 +1,8 @@
-#define TEST_EXCEPTION(expr, exceptionType) do {    \
+#define TEST_EXCEPTION(expr, exceptionType) do {\
                                                 \
 bool isThrown = false;                          \
 try {                                           \
-    bool val = expr;                            \
+    expr;                                       \
 } catch(const exceptionType &) {                \
     isThrown = true;                            \
 }                                               \
