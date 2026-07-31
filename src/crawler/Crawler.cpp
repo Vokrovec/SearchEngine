@@ -86,9 +86,7 @@ void Crawler::crawl() {
         std::string response = m_Client.Visit(url);
         saveToFile(std::to_string(idx), response);
         m_HTMLParser.parse(response);
-        //TODO: write response to the file
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        //std::cout << m_UrlsQ.empty() << std::endl;
     }
 }
 

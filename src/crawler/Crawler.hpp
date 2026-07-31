@@ -10,6 +10,8 @@
 #include <map>
 
 
+//TODO: make the crawler async
+
 class Crawler {
     public:
       Crawler(const std::string&);
