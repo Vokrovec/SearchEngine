@@ -8,6 +8,7 @@
 #include <cassert>
 #include <utility>
 #include <fstream>
+#include <mutex>
 
 std::string Crawler::getProperURL(const std::string& inputURL) {
     if (inputURL.compare(0, 1, "#") == 0) return "";
@@ -31,20 +32,16 @@ std::string Crawler::getProperURL(const std::string& inputURL) {
 Crawler::Crawler(const std::string& seed) {
     m_UrlsQ.push(seed);
     m_HTMLParser.registerCallback("a", [this](const Element& e){
-            std::string link = e.getAttribute("href");
-            std::string url = getProperURL(link);
-            if (url.empty()) return;
-            if (m_Visited.contains(url)) return;
-            //std::cout << "Found <a>: " << url << std::endl;
-            m_UrlsQ.push(url);
+        std::string url = getProperURL(e.getAttribute("href"));
+
+            if (!url.empty())
+                enqueueURL(std::move(url));
         });
     m_HTMLParser.registerCallback("link", [this](const Element& e){
-            std::string link = e.getAttribute("href");
-            std::string url = getProperURL(link);
-            if (url.empty()) return;
-            if (m_Visited.contains(url)) return;
-            //std::cout << "Found <link>: " << url << std::endl;
-            m_UrlsQ.push(url);
+        std::string url = getProperURL(e.getAttribute("href"));
+
+        if (!url.empty())
+            enqueueURL(std::move(url));
         });
 }
 
@@ -76,11 +73,8 @@ void Crawler::crawl() {
         idx++;
         std::string url = m_UrlsQ.front();
         m_UrlsQ.pop();
-        if (m_Visited.contains(url))
-            continue;
-        if (!canScrape(url))
-            continue;
-        m_Visited.insert(url);
+        //TODO: check if visited
+        //
         std::cout << "Scraping URL: " << url << std::endl;
         std::cout << "URLs in queue: " << m_UrlsQ.size() << std::endl;
         std::string response = m_Client.Visit(url);
@@ -96,4 +90,15 @@ void Crawler::setUserAgent(const std::string& agentName) {
 
 void Crawler::setDownloadDirectory(const std::filesystem::path& path) {
     m_DownloadDirectory = path;
+}
+
+void Crawler::enqueueURL(std::string url) {
+    {
+        std::lock_guard lock(m_SeenMutex);
+
+        if (!m_Seen.insert(url).second)
+            return;
+    }
+
+    m_UrlsQ.push(std::move(url));
 }
