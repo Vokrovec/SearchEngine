@@ -21,7 +21,6 @@ namespace ThreadSafe {
         void push_vec(std::vector<T> v_el) {
             {
                 std::lock_guard lock(m_Mutex);
-                m_Queue.reserve(v_el.size());
                 for (auto& el: v_el)
                     m_Queue.push(std::move(el));
             }
