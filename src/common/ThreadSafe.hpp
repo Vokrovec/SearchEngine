@@ -18,6 +18,15 @@ namespace ThreadSafe {
             }
             m_Condition.notify_one();
         }
+        void push_vec(std::vector<T> v_el) {
+            {
+                std::lock_guard lock(m_Mutex);
+                m_Queue.reserve(v_el.size());
+                for (auto& el: v_el)
+                    m_Queue.push(std::move(el));
+            }
+            m_Condition.notify_one();
+        }
         bool pop(T& el) {
             std::unique_lock lock(m_Mutex);
             m_Condition.wait(lock, [this] {

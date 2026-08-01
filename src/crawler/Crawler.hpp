@@ -4,13 +4,12 @@
 #include "crawler/HTTPClient.hpp"
 #include "common/HTMLParser.hpp"
 #include <filesystem>
-#include <mutex>
 #include <string>
 #include <chrono>
-#include <unordered_set>
 
 
 //TODO: make the robots.txt work async
+//TODO: make scheduler
 
 class Crawler {
     using TimePoint = std::chrono::steady_clock::time_point;
@@ -44,6 +43,7 @@ class Crawler {
           std::shared_ptr<std::map<std::string, RobotsParser>> m_RobotsTxts = {}; //domain to Parser
           std::shared_ptr<ThreadSafe::Map<std::string, TimePoint>> m_DomainsCooldown = {};
           std::unordered_map<std::string, TimePoint> m_DomainsCache = {};
+          std::vector<std::string> m_UrlsBuffer{};
       };
     public:
       Crawler();
@@ -60,13 +60,13 @@ class Crawler {
       void setDownloadDirectory(const std::filesystem::path&);
     private:
       static std::string getProperURL(const std::string&);
-      std::shared_ptr<ThreadSafe::Queue<std::string>> m_UrlsQ = {};
-      std::shared_ptr<ThreadSafe::Set<std::string>> m_Seen = {};
-      std::shared_ptr<ThreadSafe::Map<std::string, RobotsParser>> m_RobotsTxts = {}; //domain to Parser
-      std::shared_ptr<ThreadSafe::Map<std::string, TimePoint>> m_DomainsCooldown = {};
+      std::shared_ptr<ThreadSafe::Queue<std::string>> m_UrlsQ;
+      std::shared_ptr<ThreadSafe::Set<std::string>> m_Seen;
+      std::shared_ptr<ThreadSafe::Map<std::string, RobotsParser>> m_RobotsTxts; //domain to Parser
+      std::shared_ptr<ThreadSafe::Map<std::string, TimePoint>> m_DomainsCooldown;
 
-      std::filesystem::path m_DownloadDirectory = {};
-      std::string m_UserAgent = {};
+      std::filesystem::path m_DownloadDirectory{};
+      std::string m_UserAgent{};
       std::vector<std::unique_ptr<Worker>> m_Workers;
       std::vector<std::thread> m_Threads;
 };

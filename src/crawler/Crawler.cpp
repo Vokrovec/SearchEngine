@@ -59,15 +59,12 @@ Crawler::Worker::Worker(const std::filesystem::path& downloadDir,
         m_UrlsQ->push(std::move(seed));
 
     m_HTMLParser.registerCallback("a", [this](const Element& e){
-        std::string url = getProperURL(e.getAttribute("href"));
-            if (!url.empty())
-                enqueueURL(std::move(url));
+            std::string url = getProperURL(e.getAttribute("href"));
+            m_UrlsBuffer.push_back(url);
         });
     m_HTMLParser.registerCallback("link", [this](const Element& e){
-        std::string url = getProperURL(e.getAttribute("href"));
-
-        if (!url.empty())
-            enqueueURL(std::move(url));
+            std::string url = getProperURL(e.getAttribute("href"));
+            m_UrlsBuffer.push_back(url);
         });
 }
 
@@ -120,7 +117,6 @@ void Crawler::Worker::crawl() {
     while(!m_UrlsQ->isStoped()) {
         idx++;
         std::string url;
-        //skip urls in cooldown
         std::vector<std::string> urlsInCooldown{};
         do {
             if (!m_UrlsQ->pop(url))
@@ -137,9 +133,9 @@ void Crawler::Worker::crawl() {
         m_HTMLParser.parse(response);
 
         //push cooldown urls back to queue
-        for (auto& u: urlsInCooldown)
-            m_UrlsQ->push(u);
-
+        m_UrlsQ->push_vec(urlsInCooldown);
+        m_UrlsQ->push_vec(m_UrlsBuffer);
+        m_UrlsBuffer = {};
         saveToFile(std::to_string(idx), response);
     }
 }
