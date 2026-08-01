@@ -25,7 +25,6 @@ class Crawler {
       std::queue<std::string> m_UrlsQ = {};
       std::set<std::string> m_Visited = {};
       std::map<std::string, RobotsParser> m_RobotsTxts = {}; //domain to Parser
-      std::vector<Element> m_Links = {};
       std::filesystem::path m_DownloadDirectory = {};
       HTTPClient m_Client{};
       HTMLParser m_HTMLParser{};
