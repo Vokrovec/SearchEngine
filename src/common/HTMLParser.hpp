@@ -1,8 +1,8 @@
 #pragma once
 #include "common/HTMLElement.hpp"
-#include <cstddef>
+#include <fstream>
 #include <functional>
-#include <map>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -14,8 +14,14 @@ class HTMLParser {
     void registerCallback(const std::string&, const CallbackFunc&);
 
   private:
-      static bool parseElement(const std::string&, std::vector<Element>&, size_t&, std::string&);
+      void callCallbacks(const Element& el, const auto c_it) const;
+      bool parseElement(std::ifstream&, Element&, bool&) const;
+      static std::string getTagName(std::string &);
+      std::unordered_map<std::string, std::vector<CallbackFunc>> m_Callbacks = {};
+
+      static constexpr auto MAX_SIZE = std::numeric_limits<std::streamsize>::max();
+      static void getAttributes(const std::string&, Element&);
       static const std::unordered_set<std::string> voidTags;
-      std::map<std::string, std::vector<CallbackFunc>> m_Callbacks = {};
+      static const std::unordered_set<std::string> HtmlTags;
 };
 

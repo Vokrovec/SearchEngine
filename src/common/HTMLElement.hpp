@@ -13,14 +13,12 @@ class Element {
     Element(const std::string&);
     Element(const Element&) = default;
     ~Element() = default;
-    void parse(const std::string&);
-    void addText(const std::string&);
-    void addAttribute(const Attribute&);
     [[nodiscard]] const std::string& getText() const;
+    void addText(const std::string&);
     [[nodiscard]] const std::string& getName() const;
-    [[nodiscard]] std::vector<Attribute> getAttributes() const;
+    [[nodiscard]] const std::vector<Attribute> & getAttributes() const;
+    void addAttribute(Attribute);
     [[nodiscard]] std::string getAttribute(const std::string&) const;
-    [[nodiscard]] static std::string getTagName(const std::string&);
   private:
     void printAttributes();
     std::string m_Name;

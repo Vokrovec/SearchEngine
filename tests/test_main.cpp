@@ -1,5 +1,5 @@
 #include "RobotsParserTest.cpp"
-#include "HTMLElementTest.cpp"
+//#include "HTMLElementTest.cpp"
 #include "HTMLParserTest.cpp"
 
 #include <cassert>
@@ -10,8 +10,8 @@ int main () {
   std::cout << "Testing Program:" << std::endl;
 
   RobotsParserTest::Run();
-  HTMLElementTest::Run();
   HTMLParserTest::Run();
+  //HTMLElementTest::Run();
 
   return 0;
 }

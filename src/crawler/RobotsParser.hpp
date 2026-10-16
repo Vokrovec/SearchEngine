@@ -1,6 +1,6 @@
 #pragma once
 //#include <iostream>
-#include <map>
+#include <vector>
 #include <optional>
 #include <string>
 
@@ -24,11 +24,11 @@ class RobotsParser {
     RobotsParser(const RobotsParser&)                     = default;
     RobotsParser&  operator=(const RobotsParser&)         = default;
     ~RobotsParser()                                       = default;
-    [[nodiscard]] bool IsPathAllowed(const std::string&);
+    [[nodiscard]] bool IsPathAllowed(const std::string&) const;
 
   private:
     [[nodiscard]] std::optional<bool> getFromCache(const std::string&) noexcept;
-    std::map<std::string, bool> m_Cache = {};
+    std::vector<Rule> m_Rules = {};
     std::string m_RobotsTxt;
     std::string m_UserAgent;
 

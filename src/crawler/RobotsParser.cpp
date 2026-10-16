@@ -1,114 +1,108 @@
 #include "crawler/RobotsParser.hpp"
+
 #include <algorithm>
-#include <optional>
 #include <stdexcept>
 #include <vector>
-#include <string>
+#include <cctype>
 #include <sstream>
+#include <string>
 
-RobotsParser::RobotsParser(const std::string& robotsTxt, 
-                           const std::string& userAgent)
-                           : m_RobotsTxt(robotsTxt), m_UserAgent(userAgent) {}
-
-std::string RobotsParser::CleanLine(const std::string& line) {
-    std::string cleaned = line;
-    size_t commentPos = cleaned.find('#');
-    if (commentPos != std::string::npos) {
-        cleaned = cleaned.substr(0, commentPos);
-    }
-    
-    // Trim leading and trailing whitespace
-    size_t start = cleaned.find_first_not_of(" \t\r\n");
-    size_t end = cleaned.find_last_not_of(" \t\r\n");
-    if (start == std::string::npos) return "";
-    return cleaned.substr(start, end - start + 1);
-}
-
-std::string RobotsParser::ToLower(std::string str) {
-    std::transform(str.begin(), str.end(), str.begin(), 
-                   [](unsigned char c){ return std::tolower(c); });
-    return std::move(str);
-}
-
-std::optional<bool> RobotsParser::getFromCache(const std::string & path) noexcept {
-    //load from cache, if it's there
-    auto it = m_Cache.find(path);
-    if (it == m_Cache.end())
-      return std::optional<bool>();
-    return std::optional<bool>((*it).second);
-}
-
-bool RobotsParser::IsPathAllowed(const std::string& path) {
-    if (m_RobotsTxt == "") // IDK if I want it like this or just to return true
-          throw std::runtime_error("There is no m_RobotsTxt text!");
-
-    //if cached return that
-    auto cached = getFromCache(path);
-    if (cached.has_value()) {
-      return cached.value();
-    }
-
-    std::stringstream ss(m_RobotsTxt);
+RobotsParser::RobotsParser(
+    const std::string& robotsTxt,
+    const std::string& userAgent)
+    : m_UserAgent(ToLower(userAgent))
+{
+    std::stringstream ss(robotsTxt);
     std::string line;
-
-    std::vector<Rule> specificUserAgentRules;
-    std::vector<Rule> wildcardRules;
 
     bool inSpecificAgentBlock = false;
     bool inWildcardBlock = false;
 
-    std::string targetAgent = ToLower(m_UserAgent);
+    std::vector<Rule> specificRules;
+    std::vector<Rule> wildcardRules;
 
     while (std::getline(ss, line)) {
         std::string cleaned = CleanLine(line);
-        if (cleaned.empty()) continue;
+        if (cleaned.empty())
+            continue;
 
-        size_t colonPos = cleaned.find(':');
-        if (colonPos == std::string::npos) continue;
+        const auto colon = cleaned.find(':');
+        if (colon == std::string::npos)
+            continue;
 
-        std::string key = ToLower(CleanLine(cleaned.substr(0, colonPos)));
-        std::string value = CleanLine(cleaned.substr(colonPos + 1));
+        const std::string key =
+            ToLower(CleanLine(cleaned.substr(0, colon)));
+
+        const std::string value =
+            CleanLine(cleaned.substr(colon + 1));
 
         if (key == "user-agent") {
-            std::string agentValue = ToLower(value);
-            
-            // Check if this block applies to our specific agent or the wildcard '*'
-            inSpecificAgentBlock = (agentValue == targetAgent);
-            inWildcardBlock = (agentValue == "*");
-        } 
-        else if (key == "disallow" || key == "allow") {
-            if (value.empty()) continue; // An empty Disallow means "allow everything"
+            const std::string agent = ToLower(value);
 
-            Rule rule{value, (key == "allow")};
+            inSpecificAgentBlock = (agent == m_UserAgent);
+            inWildcardBlock = (agent == "*");
+        }
+        else if (key == "allow" || key == "disallow") {
+            if (value.empty())
+                continue;
 
-            if (inSpecificAgentBlock) {
-                specificUserAgentRules.push_back(rule);
-            } else if (inWildcardBlock) {
-                wildcardRules.push_back(rule);
-            }
+            Rule rule{value, key == "allow"};
+
+            if (inSpecificAgentBlock)
+                specificRules.push_back(std::move(rule));
+            else if (inWildcardBlock)
+                wildcardRules.push_back(std::move(rule));
         }
     }
 
-    // Specific agent rules override wildcard '*' rules
-    const auto& activeRules = !specificUserAgentRules.empty() 
-                              ? specificUserAgentRules 
-                              : wildcardRules;
+    m_Rules = !specificRules.empty()
+        ? std::move(specificRules)
+        : std::move(wildcardRules);
+}
 
-    // Evaluate path against active rules (longest matching rule wins)
+bool RobotsParser::IsPathAllowed(const std::string& path) const {
+    if (path == "") throw std::runtime_error("No path specified!");
     bool allowed = true;
-    size_t longestMatchLength = 0;
+    std::size_t longestMatch = 0;
 
-    for (const auto& rule : activeRules) {
-        // Check if the requested path starts with the rule's path prefix
-        m_Cache[rule.path] = rule.isAllow;
-        if (path.rfind(rule.path, 0) != 0) continue;
-        if (rule.path.length() < longestMatchLength) continue;
+    for (const auto& rule : m_Rules) {
+        if (path.rfind(rule.path, 0) != 0)
+            continue;
 
-        longestMatchLength = rule.path.length();
-        allowed = rule.isAllow;
+        if (rule.path.size() > longestMatch) {
+            longestMatch = rule.path.size();
+            allowed = rule.isAllow;
+        }
+        else if (rule.path.size() == longestMatch && rule.isAllow) {
+            // Tie-break: Allow wins for equal-length matches.
+            allowed = true;
+        }
     }
-    m_Cache[path] = allowed;
 
     return allowed;
 }
 
+std::string RobotsParser::CleanLine(const std::string& line) {
+    std::string cleaned = line;
+
+    const auto comment = cleaned.find('#');
+    if (comment != std::string::npos)
+        cleaned.erase(comment);
+
+    const auto start = cleaned.find_first_not_of(" \t\r\n");
+    if (start == std::string::npos)
+        return {};
+
+    const auto end = cleaned.find_last_not_of(" \t\r\n");
+    return cleaned.substr(start, end - start + 1);
+}
+
+std::string RobotsParser::ToLower(std::string str) {
+    std::transform(
+        str.begin(), str.end(), str.begin(),
+        [](unsigned char c) {
+            return static_cast<char>(std::tolower(c));
+        });
+
+    return str;
+}

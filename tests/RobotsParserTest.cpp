@@ -9,7 +9,6 @@ class RobotsParserTest {
       static void Run() {
           std::cout << "Testing RobotsParser:" << std::endl;
           test_IsPathAllowed();
-          test_getFromCache();
           std::cout << "All Tests Passed RobotsParser!" << std::endl;
       }
   private:
@@ -38,14 +37,8 @@ class RobotsParserTest {
           assert(P.IsPathAllowed("/temp/idk") == false);
           assert(P.IsPathAllowed("/idk/") == true);
 
-          //exception test
-          RobotsParser PE("", myBotName);
-          TEST_EXCEPTION(PE.IsPathAllowed("/private"), std::runtime_error);
 
           //cache test
-          assert(P.getFromCache("/idk") == std::optional(true));
-          assert(P.getFromCache("/idk/") == std::optional(true));
-          assert(P.getFromCache("/67/") == std::optional<bool>());
           robotsTxt = R"(
               User-agent: *
               Disallow: /private/
@@ -176,31 +169,5 @@ class RobotsParserTest {
 
           assert(P10.IsPathAllowed("/private/") == false);
           assert(P10.IsPathAllowed("/private/public/") == true);
-      }
-      static void test_getFromCache() {
-        std::string robotsTxt = R"(
-            User-agent: *
-            Disallow: /private/
-            Disallow: /admin/
-            Allow: /public/
-        )";
-
-        RobotsParser P(robotsTxt, "*");
-
-        // Initially nothing cached
-        assert(P.getFromCache("/private/") == std::optional<bool>());
-        assert(P.getFromCache("/public/") == std::optional<bool>());
-
-        // Calling IsPathAllowed populates cache
-        assert(P.IsPathAllowed("/private/") == false);
-        assert(P.getFromCache("/private/") == std::optional<bool>(false));
-
-        // Allowed path is cached too
-        assert(P.getFromCache("/public/") == std::optional<bool>(true));
-        assert(P.IsPathAllowed("/public/") == true);
-
-        // Unrelated path gets cached
-        assert(P.IsPathAllowed("/hello") == true);
-        assert(P.getFromCache("/hello") == std::optional<bool>(true));
       }
 };
