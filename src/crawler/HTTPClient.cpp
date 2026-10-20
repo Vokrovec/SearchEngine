@@ -79,20 +79,22 @@ std::string HTTPClient::GetUserAgent() const {
     return m_UserAgent;
 }
 
-std::string HTTPClient::Visit(const std::string & URL) const {
+HTTPClient::Response HTTPClient::Visit(const std::string & URL) const {
     if (!m_Curl)
         throw std::logic_error("HTTPClient was not initialized!");
-    std::string response;
+    std::string body;
     curl_easy_setopt(m_Curl, CURLOPT_URL, URL.c_str());
-    curl_easy_setopt(m_Curl, CURLOPT_WRITEDATA, &response);
+    curl_easy_setopt(m_Curl, CURLOPT_WRITEDATA, &body);
+    long status;
     CURLcode result = curl_easy_perform(m_Curl);
+    curl_easy_getinfo(m_Curl, CURLINFO_RESPONSE_CODE, &status);
 
 
     if (result != CURLE_OK) {
         std::cerr << "Can not visit this page: " << URL 
                   << "\n Error: " << curl_easy_strerror(result) << std::endl;
-        return "";
+        throw std::runtime_error("Error with curl: " + std::string(curl_easy_strerror(result)));
     }
     std::cout << "Visited Page: " << URL << std::endl;
-    return response;
+    return Response(status, body);
 }

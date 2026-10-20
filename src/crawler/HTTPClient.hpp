@@ -3,10 +3,15 @@
 #include <string>
 
 class HTTPClient {
+    class Response {
+        public:
+          int status;
+          std::string body;
+    };
     public:
       HTTPClient();
       HTTPClient(HTTPClient &) = delete;
-      [[nodiscard]] std::string Visit(const std::string &) const;
+      [[nodiscard]] Response Visit(const std::string &) const;
       void SetUserAgent(const std::string &);
       std::string GetUserAgent() const;
       void HandleRobots() const;
